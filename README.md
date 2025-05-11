@@ -15,7 +15,7 @@ The assistant allows users to upload multiple documents (PDF, TXT) and then ask 
 
 ## Tech Stack (Initial Plan)
 *   **Programming Language:** Python 3.12
-*   **Deep Learning Framework:** PyTorch (with CUDA 12.1 support)
+*   **Deep Learning Framework:** PyTorch (with CUDA 12.2 support)
 *   **Core AI/ML Libraries:**
     *   `transformers` (Hugging Face for LLMs and embedding models)
     *   `sentence-transformers` (for efficient text embeddings)
