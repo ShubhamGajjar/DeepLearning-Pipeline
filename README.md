@@ -94,6 +94,7 @@ DeepLearning-Pipeline/
 ├── dvc.yaml                  # DVC pipeline definition file
 ├── params.yaml               # Parameters for DVC stages (e.g., chunk size, model names)
 └── README.md                 # This file!
+```
 
 ## Setup and Running (To be detailed as project progresses)
 1.  Clone the repository.
