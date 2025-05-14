@@ -1,0 +1,80 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=61.0", "wheel"] # Added wheel, good practice
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "intelligent_document_assistant"
+version = "0.1.0"
+description = "An Intelligent Document Assistant using RAG with an MLOps pipeline."
+readme = "README.md"
+requires-python = ">=3.12" # Good
+license = { text = "LICENSE" }
+authors = [
+  { name = "Shubham Gajjar", email = "shubhamgajjar14@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License 2.0",
+    "Programming Language :: Python :: 3", # General Python 3
+    "Programming Language :: Python :: 3.12", # Specific version
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["rag", "llm", "ai", "mlops", "nlp", "document-processing"]
+
+dependencies = [
+    "torch", # uv will use the source below
+    "torchvision",
+    "torchaudio",
+    "transformers>=4.30.0",
+    "sentence-transformers>=2.2.0",
+    "accelerate>=0.20.0",
+    "faiss-cpu>=1.7.0",
+    "bitsandbytes>=0.40.0",
+    "pypdf2>=3.0.0",
+    "PyMuPDF>=1.23.0",
+    "unstructured[local-inference]>=0.10.0",
+    "langchain>=0.1.0",
+    "langchain-community>=0.0.20",
+    "langchain-huggingface>=0.0.1",
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.22.0",
+    "python-multipart>=0.0.5",
+    "python-dotenv>=1.0.0",
+    "scikit-learn>=1.3.0",
+    # Removed pathlib and hashlib as they are stdlib
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyterlab>=3.6.0",
+    "ipywidgets>=8.0.0",
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+    "dvc[s3]>=3.0.0",
+    "mlflow>=2.5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ShubhamGajjar/DeepLearning-Pipeline"
+Repository = "https://github.com/ShubhamGajjar/DeepLearning-Pipeline"
+
+
+[tool.ruff]
+line-length = 88
+select = [
+    "E", "W", "F", "I", "C", "B",
+]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.uv.pip]
+extra-index-url = [
+    "https://download.pytorch.org/whl/cu121"
+]
