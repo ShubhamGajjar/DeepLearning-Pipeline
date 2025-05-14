@@ -77,64 +77,72 @@ def load_documents(source_dir: Union[str, Path]) -> List[Tuple[str, Dict]]:
 
     return all_documents
 
-# Example usage (optional, for testing the module directly)
+# Example usage (modified for manual input)
 if __name__ == "__main__":
-    # Create dummy files for testing
-    Path("temp_test_docs").mkdir(exist_ok=True)
-    with open("temp_test_docs/sample.txt", "w") as f:
-        f.write("This is a sample text document.\nIt has multiple lines.")
+    from pathlib import Path
 
-    # Create a dummy PDF (requires a library like reportlab, or use an existing small PDF)
-    # For simplicity, we'll assume you have a sample.pdf in 'temp_test_docs' if you want to test PDF loading.
-    # If not, PDF loading test will be skipped or error out gracefully in the example.
-    
-    # Example: Create a simple PDF using PyMuPDF for testing if you don't have one
-    try:
-        pdf_path = Path("temp_test_docs/sample.pdf")
-        if not pdf_path.exists(): # Only create if it doesn't exist
-            doc = fitz.open() # new empty PDF
-            page = doc.new_page()
-            page.insert_text((72, 72), "This is page 1 of a sample PDF.")
-            page = doc.new_page()
-            page.insert_text((72, 72), "This is page 2 of the sample PDF.")
-            doc.save(str(pdf_path))
-            doc.close()
-            print(f"Created dummy PDF: {pdf_path}")
-    except Exception as e:
-        print(f"Could not create dummy PDF for testing: {e}")
+    # Default directory to look for files if only a filename is given
+    default_data_dir = Path("data/raw")
+    print(f"Default search directory for files if no full path is given: {default_data_dir.resolve()}")
+    print("You can also provide an absolute path to a file.")
 
+    while True:
+        file_input = input("\nEnter the path to a PDF or TXT file (or type 'all' to load from data/raw, or 'quit' to exit): ").strip()
 
-    print("\n--- Testing load_text_document ---")
-    try:
-        txt_docs = load_text_document("temp_test_docs/sample.txt")
-        for content, meta in txt_docs:
-            print(f"Content: '{content[:50]}...', Metadata: {meta}")
-    except Exception as e:
-        print(f"Error testing load_text_document: {e}")
+        if file_input.lower() == 'quit':
+            break
+        elif file_input.lower() == 'all':
+            print(f"\n--- Loading all supported documents from '{default_data_dir}' ---")
+            try:
+                if default_data_dir.exists() and default_data_dir.is_dir():
+                    all_loaded_docs = load_documents(default_data_dir)
+                    print(f"Total documents/pages loaded: {len(all_loaded_docs)}")
+                    for i, (content, meta) in enumerate(all_loaded_docs):
+                        if i < 5: # Print details for first few
+                            print(f"  Doc {i+1}: Content='{content[:70].strip().replace(chr(10), ' ')}...', Meta={meta}")
+                else:
+                    print(f"Directory {default_data_dir} not found or is not a directory.")
+            except Exception as e:
+                print(f"Error loading all documents: {e}")
+            continue # Go back to prompt
 
-    print("\n--- Testing load_pdf_document ---")
-    if Path("temp_test_docs/sample.pdf").exists():
+        # Try to resolve the input as a path
+        # If it's just a filename, assume it's in default_data_dir
+        file_path_obj = Path(file_input)
+        if not file_path_obj.is_absolute() and not file_path_obj.exists():
+            # If not absolute and doesn't exist as is, try prepending default_data_dir
+            file_path_obj = default_data_dir / file_input
+
+        if not file_path_obj.exists() or not file_path_obj.is_file():
+            print(f"Error: File not found or is not a file: {file_path_obj}")
+            continue
+
+        ext = file_path_obj.suffix.lower()
+        loaded_file_docs = []
+
         try:
-            pdf_docs = load_pdf_document("temp_test_docs/sample.pdf")
-            for content, meta in pdf_docs:
-                print(f"Content: '{content[:50]}...', Metadata: {meta}")
+            if ext == ".pdf":
+                print(f"\n--- Loading PDF: {file_path_obj.name} ---")
+                loaded_file_docs = load_pdf_document(file_path_obj)
+            elif ext == ".txt":
+                print(f"\n--- Loading TXT: {file_path_obj.name} ---")
+                loaded_file_docs = load_text_document(file_path_obj)
+            else:
+                print(f"Unsupported file type: {ext}. Please provide a .pdf or .txt file.")
+                continue
+
+            if loaded_file_docs:
+                print(f"Successfully loaded {len(loaded_file_docs)} item(s) from {file_path_obj.name}:")
+                for i, (content, meta) in enumerate(loaded_file_docs):
+                    print(f"  Item {i+1}:")
+                    print(f"    Metadata: {meta}")
+                    print(f"    Content Preview: '{content[:150].strip().replace(chr(10), ' ')}...'") # Show a bit more
+            else:
+                print(f"No content loaded from {file_path_obj.name} (file might be empty or unsupported).")
+
+        except FileNotFoundError:
+            print(f"Error: File not found at {file_path_obj}")
+        except ValueError as ve:
+            print(f"Error: {ve}")
         except Exception as e:
-            print(f"Error testing load_pdf_document: {e}")
-    else:
-        print("Skipping PDF test, sample.pdf not found in temp_test_docs/")
-        
-
-    print("\n--- Testing load_documents (from directory) ---")
-    try:
-        all_loaded_docs = load_documents("temp_test_docs")
-        print(f"Total documents/pages loaded: {len(all_loaded_docs)}")
-        for i, (content, meta) in enumerate(all_loaded_docs):
-            if i < 3: # Print details for first few
-                 print(f"Doc {i+1}: Content='{content[:30].strip().replace(chr(10), '')}...', Meta={meta}")
-    except Exception as e:
-        print(f"Error testing load_documents: {e}")
-
-    # Clean up dummy files (optional)
-    # import shutil
-    # shutil.rmtree("temp_test_docs")
-    # print("\nCleaned up temp_test_docs directory.")
+            print(f"An unexpected error occurred while processing {file_path_obj.name}: {e}")
