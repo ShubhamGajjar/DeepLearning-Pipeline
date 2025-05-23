@@ -1,4 +1,5 @@
 # Intelligent Document Assistant: A Deep Learning Production Pipeline
+
 This project implements an Intelligent Document Assistant using a Retrieval Augmented Generation (RAG) approach. It serves as a demonstration of a full MLOps pipeline, from data ingestion and model training/selection to API deployment and containerization.
 
 The assistant allows users to upload multiple documents (PDF, TXT) and then ask questions about their content or request summaries.
